@@ -1,10 +1,21 @@
 # Function to check student eligibility
-def check_eligibility(percentage):
+def check_eligibility(student, drive):
 
-    # Check if percentage is 60 or above
-    if percentage >= 60:
-        return "Eligible"
+    # Check percentage criteria
+    if drive["criteria_type"] == "percentage":
 
-    # If percentage is below 60
+        if student["percentage"] >= drive["minimum_criteria"]:
+            return "Eligible"
+        else:
+            return "Not Eligible"
+
+    # Check CGPA criteria
+    elif drive["criteria_type"] == "cgpa":
+
+        if student["cgpa"] >= drive["minimum_criteria"]:
+            return "Eligible"
+        else:
+            return "Not Eligible"
+
     else:
-        return "Not Eligible"
+        return "Criteria Not Available"

@@ -1,18 +1,13 @@
-# Store easier criteria for project testing
+# Store test criteria
 test_criteria = {
 
-    # TCS test eligibility
-    "TCS": 55,
+    "TCS": "Minimum 60%",
 
-    # Infosys test eligibility
-    "Infosys": 60,
+    "Infosys": "Minimum 65%",
 
-    # Google test eligibility
-    "Google": 7.5,
+    "Google": "Minimum 8.0 CGPA",
 
-    # Microsoft test eligibility
-    "Microsoft": 8.0,
+    "Microsoft": "Minimum 8.5 CGPA",
 
-    # Learn to Earn Lab test eligibility
-    "Learn to Earn Lab": 7.0
+    "Learn to Earn Lab": "Minimum 7.5 CGPA"
 }

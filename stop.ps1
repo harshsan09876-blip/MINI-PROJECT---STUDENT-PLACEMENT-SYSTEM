@@ -12,8 +12,10 @@ if (-not (Test-Path -LiteralPath $pidFile)) {
 $serverId = 0
 [void][int]::TryParse((Get-Content -LiteralPath $pidFile -Raw), [ref]$serverId)
 $server = Get-Process -Id $serverId -ErrorAction SilentlyContinue
-if ($server -and $server.Path -and $server.Path.Equals($python, [System.StringComparison]::OrdinalIgnoreCase)) {
-    Stop-Process -Id $serverId
+$resolvedPython = (Get-Item -LiteralPath $python).Target
+if (-not $resolvedPython) { $resolvedPython = $python }
+if ($server -and ($server.Path.Equals($python, [System.StringComparison]::OrdinalIgnoreCase) -or $server.Path.Equals($resolvedPython, [System.StringComparison]::OrdinalIgnoreCase) -or $server.ProcessName -eq "python")) {
+    Stop-Process -Id $serverId -Force
     Write-Host "Stopped the placement server (PID $serverId)."
 } else {
     Write-Host "The saved PID is no longer the project server. Removed the stale PID file."

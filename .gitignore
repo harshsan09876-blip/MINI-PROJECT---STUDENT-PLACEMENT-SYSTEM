@@ -4,4 +4,8 @@ __pycache__/
 .flask.*.log
 .flask.pid
 placement.db
+PYTHON_FOLDER/placement.db
 .flask_secret
+crash.log
+Front end/uploads/*
+!Front end/uploads/.gitkeep

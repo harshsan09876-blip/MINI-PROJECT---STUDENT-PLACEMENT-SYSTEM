@@ -15,7 +15,9 @@ if (Test-Path -LiteralPath $pidFile) {
     $savedId = 0
     [void][int]::TryParse((Get-Content -LiteralPath $pidFile -Raw), [ref]$savedId)
     $savedProcess = Get-Process -Id $savedId -ErrorAction SilentlyContinue
-    if ($savedProcess -and $savedProcess.Path -and $savedProcess.Path.Equals($python, [System.StringComparison]::OrdinalIgnoreCase)) {
+    $resolvedPython = (Get-Item -LiteralPath $python).Target
+    if (-not $resolvedPython) { $resolvedPython = $python }
+    if ($savedProcess -and ($savedProcess.Path.Equals($python, [System.StringComparison]::OrdinalIgnoreCase) -or $savedProcess.Path.Equals($resolvedPython, [System.StringComparison]::OrdinalIgnoreCase) -or $savedProcess.ProcessName -eq "python")) {
         Write-Host "Placement server is already running at http://127.0.0.1:5000/ (PID $savedId)."
         exit 0
     }
@@ -24,6 +26,12 @@ if (Test-Path -LiteralPath $pidFile) {
 
 $listener = Get-NetTCPConnection -LocalPort 5000 -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
 if ($listener) {
+    $listenProc = Get-Process -Id $listener.OwningProcess -ErrorAction SilentlyContinue
+    if ($listenProc -and $listenProc.ProcessName -eq "python") {
+        Set-Content -LiteralPath $pidFile -Value $listener.OwningProcess -NoNewline
+        Write-Host "Placement server is already running at http://127.0.0.1:5000/ (PID $($listener.OwningProcess))."
+        exit 0
+    }
     throw "Port 5000 is already in use by PID $($listener.OwningProcess). Close that server before starting this project."
 }
 

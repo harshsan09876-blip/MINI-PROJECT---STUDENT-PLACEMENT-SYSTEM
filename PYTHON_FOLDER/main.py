@@ -568,10 +568,11 @@ def upload_resume():
         return jsonify({"error": "No file uploaded."}), 400
 
     file = request.files["resume"]
-    if file.filename == "":
+    filename = file.filename or ""
+    if filename == "":
         return jsonify({"error": "No file selected."}), 400
 
-    ext = Path(file.filename).suffix.lower()
+    ext = Path(filename).suffix.lower()
     if ext not in [".pdf", ".doc", ".docx"]:
         return jsonify({"error": "Only PDF and DOC/DOCX files are supported."}), 400
 

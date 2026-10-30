@@ -241,6 +241,101 @@ def init_db():
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, sample_jobs)
 
+        # Seed demo applications for all students
+        students = cursor.execute(
+            "SELECT id FROM students ORDER BY id"
+        ).fetchall()
+
+        jobs = cursor.execute(
+            "SELECT id FROM jobs ORDER BY id"
+        ).fetchall()
+
+        demo_statuses = [
+            ("Applied", "Your application was received."),
+            ("Under Review", "Your application is being reviewed."),
+            ("Shortlisted", "You have been shortlisted for the next round.")
+        ]
+
+        if jobs:
+            for student_index, student_row in enumerate(students):
+                student_id = student_row[0]
+
+                # Give each student up to 3 different jobs
+                count = min(3, len(jobs))
+                start = (student_index * 2) % len(jobs)
+
+                for offset in range(count):
+                    job_id = jobs[(start + offset) % len(jobs)][0]
+
+                    status, note = demo_statuses[
+                        (student_index + offset) % len(demo_statuses)
+                    ]
+
+                    cursor.execute(
+                        """
+                        INSERT OR IGNORE INTO applications
+                        (student_id, job_id, applied_at, status, note)
+                        VALUES (?, ?, ?, ?, ?)
+                        """,
+                        (
+                            student_id,
+                            job_id,
+                            "2026-10-15",
+                            status,
+                            note
+                        )
+                    )
+
+
+        # Seed demo applications for Jatin Chaudhary
+        jatin = cursor.execute(
+            "SELECT id FROM students WHERE LOWER(email) = ?",
+            ("jatin@placement.demo",)
+        ).fetchone()
+
+        if jatin:
+            jatin_id = jatin["id"]
+
+            demo_applications = [
+                (
+                    "TCS", "Software Developer",
+                    "2026-10-10", "Applied",
+                    "Your application was received."
+                ),
+                (
+                    "Infosys", "System Engineer",
+                    "2026-10-12", "Under review",
+                    "Your application is being reviewed."
+                ),
+                (
+                    "Learn to Earn Lab", "Software Developer",
+                    "2026-10-14", "Shortlisted",
+                    "Congratulations! You have been shortlisted."
+                )
+            ]
+
+            for company_name, job_title, applied_at, status, note in demo_applications:
+                job_row = cursor.execute(
+                    """
+                    SELECT j.id
+                    FROM jobs j
+                    JOIN companies c ON c.id = j.company_id
+                    WHERE c.name = ? AND j.title = ?
+                    LIMIT 1
+                    """,
+                    (company_name, job_title)
+                ).fetchone()
+
+                if job_row:
+                    cursor.execute(
+                        """
+                        INSERT OR IGNORE INTO applications
+                        (student_id, job_id, applied_at, status, note)
+                        VALUES (?, ?, ?, ?, ?)
+                        """,
+                        (jatin_id, job_row["id"], applied_at, status, note)
+                    )
+
         # Seed sample notifications
         cursor.execute("SELECT COUNT(*) FROM notifications")
         if cursor.fetchone()[0] == 0:

@@ -150,5 +150,60 @@
     if(isAdmin && (!session || session.role!=="admin")){location.replace("login.html");return;}
     let content="";if(page==="student-dashboard")content=studentDash();if(page==="profile")content=profile();if(page==="jobs")content=jobsView();if(page==="job-details")content=detail();if(page==="applications")content=applicationsView();if(page==="notifications")content=notificationsView();if(page==="admin-dashboard")content=adminDash();if(page==="students")content=adminTable("students");if(page==="companies")content=adminTable("companies");if(page==="manage-jobs")content=adminTable("manage-jobs");if(page==="manage-applications")content=adminTable("manage-applications");show(shell(content));
   }
+
+  // Temporary theme selector — no localStorage
+  function mountThemePicker() {
+    if (document.getElementById("themePicker")) return;
+
+    const picker = document.createElement("div");
+    picker.className = "theme-picker";
+    picker.id = "themePicker";
+
+    picker.innerHTML = `
+      <button type="button" class="theme-toggle"
+              id="themeToggle" aria-expanded="false">
+        🎨 Themes
+      </button>
+      <div class="theme-options" id="themeOptions" hidden>
+        <button type="button" data-theme="light">☀️ Light</button>
+        <button type="button" data-theme="dark">🌙 Dark</button>
+        <button type="button" data-theme="lavender">💜 Lavender</button>
+        <button type="button" data-theme="emerald">🌿 Emerald</button>
+        <button type="button" data-theme="ocean">🌊 Ocean Blue</button>
+        <button type="button" data-theme="rose">🌸 Rose</button>
+        <button type="button" data-theme="sunset">🌅 Sunset</button>
+      </div>
+    `;
+
+    document.body.appendChild(picker);
+
+    const toggle = picker.querySelector("#themeToggle");
+    const options = picker.querySelector("#themeOptions");
+
+    toggle.addEventListener("click", () => {
+      options.hidden = !options.hidden;
+      toggle.setAttribute("aria-expanded", String(!options.hidden));
+    });
+
+    options.addEventListener("click", event => {
+      const button = event.target.closest("[data-theme]");
+      if (!button) return;
+
+      const theme = button.dataset.theme;
+
+      if (theme === "light") {
+        document.body.removeAttribute("data-theme");
+      } else {
+        document.body.dataset.theme = theme;
+      }
+
+      options.hidden = true;
+      toggle.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  mountThemePicker();
   boot();
 })();
+
+
